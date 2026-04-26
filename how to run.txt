@@ -1,0 +1,2 @@
+to start application 
+uvicorn main:app --reload

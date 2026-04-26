@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  gtu-rag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gtu-rag-app
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - GROQ_MODEL=${GROQ_MODEL:-llama-3.1-8b-instant}
+      - HANDWRITTEN_ANSWER=${HANDWRITTEN_ANSWER:-true}
+    env_file:
+      - .env
+    volumes:
+      # Persist indexes (optional - remove if using pre-built indexes)
+      - ./gtu_chunks:/app/gtu_chunks:ro
+      - ./gtu_bm25_index:/app/gtu_bm25_index:ro
+      - ./gtu_vector_index:/app/gtu_vector_index:ro
+      # Mount static files for hot reload during development
+      - ./static:/app/static:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/api/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+
+  # Optional: Redis for caching (uncomment to enable)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: gtu-rag-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   restart: unless-stopped
+  #   command: redis-server --appendonly yes
+
+# volumes:
+#   redis_data:

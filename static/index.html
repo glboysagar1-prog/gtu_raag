@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTU Intelligence | RAG Verification Console</title>
+    <!-- Standard UI Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Handwritten CSS Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Bring in marked.js to render Markdown responses beautifully -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: false, theme: 'transparent', flowchart: { curve: 'basis' } });
+      window.mermaid = mermaid;
+    </script>
+    <!-- html2canvas for image generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="style.css?v=8">
+</head>
+<body>
+    <div class="app-background">
+        <div class="ambient-glow"></div>
+        <div class="ambient-glow secondary"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar for Settings -->
+        <aside class="sidebar glass-panel">
+            <h1 class="logo">GTU <span>Intelligence</span></h1>
+            
+            <div class="settings-group">
+                <label>Active Persona</label>
+                <div class="toggle-switch">
+                    <input type="radio" id="mode-auto" name="mode" value="auto" checked>
+                    <label for="mode-auto">⚡ Auto</label>
+                    <input type="radio" id="mode-tutor" name="mode" value="tutor">
+                    <label for="mode-tutor">Tutor</label>
+                    <input type="radio" id="mode-coach" name="mode" value="coach">
+                    <label for="mode-coach">Coach</label>
+                    <input type="radio" id="mode-mcq" name="mode" value="mcq">
+                    <label for="mode-mcq">Quiz</label>
+                    <input type="radio" id="mode-notes" name="mode" value="notes">
+                    <label for="mode-notes">Notes</label>
+                    <input type="radio" id="mode-flow" name="mode" value="flow">
+                    <label for="mode-flow">🌊 Flow</label>
+                    <div class="toggle-bg"></div>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label for="subject-input">Subject Topic</label>
+                <input type="text" id="subject-input" class="glass-input" placeholder="e.g. Data Structures">
+            </div>
+
+            <!-- Tutor Settings -->
+            <div id="tutor-settings" class="mode-settings active">
+                <div class="settings-group">
+                    <label for="marks-input">Question Weight</label>
+                    <select id="marks-input" class="glass-input">
+                        <option value="3">3 Marks (Short)</option>
+                        <option value="4" selected>4 Marks (Medium)</option>
+                        <option value="7">7 Marks (Detailed)</option>
+                        <option value="10">10 Marks (Comprehensive)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Coach Settings -->
+            <div id="coach-settings" class="mode-settings">
+                <div class="settings-group">
+                    <label for="days-input">Days Available</label>
+                    <input type="number" id="days-input" class="glass-input" value="7" min="1" max="30">
+                </div>
+                <div class="settings-group">
+                    <label for="hours-input">Hours Per Day</label>
+                    <input type="number" id="hours-input" class="glass-input" value="4" min="1" max="12">
+                </div>
+                <div class="settings-group">
+                    <label for="weak-input">Known Weak Areas</label>
+                    <input type="text" id="weak-input" class="glass-input" placeholder="e.g. Graphs, Trees">
+                </div>
+            </div>
+
+            <!-- MCQ Settings -->
+            <div id="mcq-settings" class="mode-settings">
+                <div class="settings-group">
+                    <label for="mcq-count">Number of Questions</label>
+                    <input type="number" id="mcq-count" class="glass-input" value="5" min="1" max="15">
+                </div>
+                <div class="settings-group">
+                    <label for="mcq-diff">Difficulty Level</label>
+                    <select id="mcq-diff" class="glass-input">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Notes Settings -->
+            <div id="notes-settings" class="mode-settings">
+                <div class="settings-group">
+                    <label for="detail-level">Detail Level</label>
+                    <select id="detail-level" class="glass-input">
+                        <option value="brief">Brief (1 page)</option>
+                        <option value="standard" selected>Standard (2-3 pages)</option>
+                        <option value="detailed">Detailed (4-5 pages)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Flow Settings -->
+            <div id="flow-settings" class="mode-settings">
+                <div class="settings-group">
+                    <label for="expertise-level">Current Expertise</label>
+                    <select id="expertise-level" class="glass-input">
+                        <option value="beginner" selected>Beginner (Simple Analogies)</option>
+                        <option value="intermediate">Intermediate (Standard Academic)</option>
+                        <option value="advanced">Advanced (High-level Technical)</option>
+                    </select>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Area -->
+        <main class="chat-container glass-panel">
+            <header class="chat-header">
+                <h2>Pipeline Verification Console</h2>
+                <div class="status-indicator">
+                    <span class="dot pulse"></span>
+                    <span class="status-text">Backend Ready</span>
+                </div>
+            </header>
+            
+            <div id="chat-messages" class="chat-messages">
+                <!-- Welcome Message dynamically added here by script -->
+            </div>
+            
+            <div class="input-area">
+                <form id="chat-form">
+                    <textarea id="prompt-input" placeholder="Type your query here to test the RAG engine..." rows="1" autofocus></textarea>
+                    <button type="submit" id="send-btn" class="glow-button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js?v=8"></script>
+</body>
+</html>
