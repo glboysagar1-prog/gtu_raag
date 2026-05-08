@@ -440,7 +440,7 @@ class GTURAGPipeline:
                 from chromadb.utils import embedding_functions
                 self.bge_large_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="BAAI/bge-large-en-v1.5")
                 print(f"Loaded Chroma Collection: {self.collection.name} with bge-large embedding.")
-            except Exception as e:
+            except (ImportError, ValueError, Exception) as e:
                 print(f"Warning: Could not load sentence-transformers ({e}). Using collection without embedding function.")
                 self.bge_large_ef = None
         else:
