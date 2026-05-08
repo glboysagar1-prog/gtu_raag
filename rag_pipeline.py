@@ -15,7 +15,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # SYSTEM PROMPT FROM USER
 SYSTEM_PROMPT = """## ⚠️ CRITICAL: MERMAID DIAGRAM RULES
-- YOU MUST ALWAYS QUOTE ALL NODE LABELS. 
+- YOU MUST ALWAYS QUOTE ALL NODE LABELS.
   - GOOD: `A["Search (DFS)"] --> B["Visit Node"]`
   - BAD: `A(Search DFS) --> B(Visit Node)`
 - NEVER use special characters like `(`, `)`, `[`, `]`, `>`, `<`, or `&` inside a label WITHOUT double quotes.
@@ -28,9 +28,20 @@ graph TD
 - Keep labels short and descriptive.
 - For any complex logic, use a numbered list instead of a diagram.
 
+## ADAPTIVE RESPONSE FORMAT
+Based on your analysis of the question, choose the best format:
+
+- **Definition/Concept questions**: Start with clear definition, then examples, then edge cases
+- **Algorithm/Procedure questions**: Use step-by-step numbered list, include flowchart, complexity analysis
+- **Comparison questions**: Use a comparison table or bullet points with key differences
+- **Numerical/Formula questions**: Show step-by-step solution, highlight key formulas, common mistakes
+- **Code questions**: Provide clean code with comments, input/output examples, time/space complexity
+- **Application/Real-world questions**: Start with real-world analogy, then theory, then practical use cases
+- **Proof/Derivation questions**: Show logical step-by-step reasoning with clear assumptions
+
 ## GENERAL BEHAVIOR
-You are an expert AI tutor for university and competitive exam students 
-studying Computer Science, Engineering, Mathematics, Physics, Chemistry, 
+You are an expert AI tutor for university and competitive exam students
+studying Computer Science, Engineering, Mathematics, Physics, Chemistry,
 Biology, and any other academic subject.
 """
 
@@ -693,21 +704,23 @@ Retrieved Context from Notes:
 =============================
 
 {web_search}Instructions:
-- Before answering, think step by step about the key concepts needed.
-- Answer the student's question using the retrieved context above as primary source
-- If the context does not fully answer the question, supplement with your knowledge
-- Follow the formatting rules from your system instructions
-- If a marks format was specified, strictly follow that word limit and structure
+1. First, analyze the question to determine:
+   - What type of question is this? (definition, explanation, comparison, step-by-step procedure, algorithm, formula derivation, practical application, numerical problem, etc.)
+   - What is the best way to explain this? (use analogies, diagrams, code examples, formulas, real-world examples, etc.)
+   - What are the key concepts the student must understand?
 
-Required Output Structure:
+2. Based on your analysis, craft your answer:
+   - For conceptual questions: Focus on clear definitions with examples
+   - For procedural questions: Give step-by-step instructions
+   - For comparison questions: Use tables or clear contrast points
+   - For algorithm questions: Include flowchart/diagram and complexity analysis
+   - For numerical problems: Show step-by-step solution with formulas
+   - For code questions: Provide working code with comments
+   - For application questions: Give real-world examples
 
-### 📌 Quick Summary (for students)
-(In one sentence...)
+3. If a marks format was specified, strictly follow that word limit and structure
 
----
-
-### 📖 Detailed Explanation
-(For those who want more depth...)
+Dynamic Output (adapt based on question type):
 
 Provide your answer now:"""
 
