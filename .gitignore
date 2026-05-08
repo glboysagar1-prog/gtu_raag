@@ -1,75 +1,13 @@
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
 venv/
+.venv/
 env/
-ENV/
-.venv
-
-# Environment variables
 .env
-.env.local
-.env.*.local
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Generated indexes (large binary files)
-gtu_bm25_index/
-gtu_vector_index/
-*.zip
-
-# OS files
 .DS_Store
-Thumbs.db
-
-# Logs
+*.zip
 *.log
-logs/
-
-# Database files (if using local DB)
-*.db
-*.sqlite
-*.sqlite3
-
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-.coverage.*.*
-coverage.xml
-*.cover
-
-# pytest
 .pytest_cache/
-@__pycache__
-.tox/
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json

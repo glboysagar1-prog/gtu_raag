@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const coachSettings = document.getElementById('coach-settings');
     const mcqSettings = document.getElementById('mcq-settings');
     const notesSettings = document.getElementById('notes-settings');
-    const flowSettings = document.getElementById('flow-settings');
     const chatMessages = document.getElementById('chat-messages');
 
     let currentMode = 'auto';
@@ -18,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
             coachSettings.classList.remove('active');
             mcqSettings.classList.remove('active');
             notesSettings.classList.remove('active');
-            flowSettings.classList.remove('active');
             
             if (currentMode === 'tutor') {
                 tutorSettings.classList.add('active');
@@ -32,9 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentMode === 'notes') {
                 notesSettings.classList.add('active');
                 addSystemMessage("Switched to <b>Expert Note-Maker</b>. I will create beautiful handwritten-style study notes with visuals. Just type a topic!");
-            } else if (currentMode === 'flow') {
-                flowSettings.classList.add('active');
-                addSystemMessage("Switched to <b>🌊 Flow State Mode</b>. I will dynamically balance the explanation's difficulty with your expertise and stimulate your curiosity!");
+
             } else {
                 addSystemMessage("Switched to <b>⚡ Auto</b> mode. Just type naturally — I'll detect whether you want QA, Notes, Quiz, Study Plan, or Code and route automatically!");
             }
@@ -84,8 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
             payload.difficulty = document.getElementById('mcq-diff').value;
         } else if(currentMode === 'notes') {
             payload.detail_level = document.getElementById('detail-level').value;
-        } else if(currentMode === 'flow') {
-            payload.user_expertise = document.getElementById('expertise-level').value;
         }
 
         // Show typing indicator
@@ -108,8 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         'tutor': '🎓 AI Tutor',
                         'coach': '📋 Study Coach',
                         'mcq': '📝 MCQ Quiz',
-                        'notes': '📖 Note-Maker',
-                        'flow': '🌊 Flow State'
+                        'notes': '📖 Note-Maker'
                     };
                     addSystemMessage(`Auto-detected intent: <b>${data.detected_intent}</b> → Routed to <b>${modeLabels[data.detected_mode] || data.detected_mode}</b>`);
                 }
@@ -125,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch(jsonErr) {
                         addAiMessage("Failed to parse the MCQ JSON. Raw output:\n\n" + data.response, true);
                     }
-                } else if (effectiveMode === 'notes' || effectiveMode === 'flow') {
+                } else if (effectiveMode === 'notes') {
                     addAiMessage(data.response, false, true);
                 } else {
                     addAiMessage(data.response);

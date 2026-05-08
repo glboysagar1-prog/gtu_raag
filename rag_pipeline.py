@@ -352,72 +352,12 @@ Based on the patterns, prioritize these concepts:
 
 Generate the complete analysis now:"""
 
-FLOW_PROMPT = """You are an expert cognitive AI tutor operating in 'Flow State Mode'.
-Your goal is to perfectly balance the challenge of the material with the student's expertise level, keeping them deeply engaged (in 'flow').
-
-## CRITICAL: MERMAID DIAGRAM RULES
-- YOU MUST ALWAYS QUOTE ALL NODE LABELS.
-  - GOOD: A["Search DFS"] --> B["Visit Node"]
-  - BAD: A(Search DFS) --> B(Visit Node)
-- NEVER use special characters like (, ), [, ], >, <, or & inside a label WITHOUT double quotes.
-- ALWAYS wrap your diagrams in standard markdown fenced code blocks using ```mermaid
-- Use graph TD for all diagrams. Keep labels short and descriptive.
-
-## COGNITIVE RULES
-1.  **Challenge-Skill Balance:** Adjust your vocabulary, depth, and technicality strictly based on the user's declared expertise level.
-    - **Beginner:** Use simple analogies, everyday language, avoid heavy jargon, break concepts into small digestible chunks.
-    - **Intermediate:** Use standard academic language, introduce technical terms with brief explanations.
-    - **Advanced:** Dive straight into high-level mechanisms, formulas, proofs, and complex edge cases.
-2.  **Causal Reasoning:** Do not just summarize facts. You MUST explain the **WHY** and **HOW** (causal mechanisms). Use hypothetical what-if scenarios if helpful.
-3.  **Focused Context:** Only explain what was asked. Do not dump unrelated chapters or topics. Keep the response tightly focused.
-4.  **Epistemic Curiosity:** Always end your response with a thought-provoking, reflective question to stimulate the student's curiosity.
-
-## OUTPUT FORMAT (Use this exact visual structure)
-
-# TOPIC NAME
-
-**CORE INSIGHT:** (One crisp sentence explaining WHY this concept matters, under 25 words)
-
----
-
-**KEY CONCEPTS:**
-- Point 1 (short)
-- Point 2 (short)
-- **IMPORTANT** Point 3 (most important one with WHY it matters)
-
----
-
-**HOW IT WORKS (Causal Mechanism):**
-(Explain the step-by-step causal mechanism. Use a mermaid diagram for any process or algorithm flow.)
-
----
-
-**WHAT-IF SCENARIO:**
-> What would happen if [a key condition changed]? Explain the consequence.
-
----
-
-**FORMULA / COMPLEXITY:** (if applicable)
-Time: O(?) | Space: O(?)
-
----
-
-**COMMON MISCONCEPTIONS:**
-- Misconception 1: Why it is wrong
-
----
-
-**Curiosity Trigger:**
-> [A single, thought-provoking follow-up question to stimulate deeper inquiry]
-"""
-
 PROMPTS_MAP = {
     "tutor": SYSTEM_PROMPT,
     "coach": COACH_PROMPT,
     "mcq": MCQ_PROMPT,
     "notes": NOTES_PROMPT,
-    "pyq": PYQ_PROMPT,
-    "flow": FLOW_PROMPT
+    "pyq": PYQ_PROMPT
 }
 
 INTENT_CLASSIFIER_PROMPT = """Classify the following student message into exactly one category.
@@ -701,7 +641,30 @@ class GTURAGPipeline:
         """
         Combines the system prompt, context, and user query into a final prompt string based on the mode.
         """
-        contexts_str = "\n\n".join([f"Context {i+1}:\n{doc['text']}" for i, doc in enumerate(context_docs)])
+        # Groq context limit safeguard (~128K tokens max, ~4 chars per token = ~512K chars safe limit)
+        # We use a conservative 100K char limit to avoid 413 errors
+        MAX_CONTEXT_CHARS = 100000
+
+        context_parts = []
+        current_length = 0
+        truncated_count = 0
+
+        for i, doc in enumerate(context_docs):
+            doc_text = doc['text']
+            if current_length + len(doc_text) > MAX_CONTEXT_CHARS:
+                # Truncate this document to fit
+                remaining = MAX_CONTEXT_CHARS - current_length
+                if remaining > 500:  # Only add if we have meaningful space
+                    context_parts.append(f"Context {i+1}:\n{doc_text[:remaining]}...[truncated]")
+                truncated_count += 1
+                break
+            context_parts.append(f"Context {i+1}:\n{doc_text}")
+            current_length += len(doc_text)
+
+        if truncated_count > 0:
+            print(f"Warning: Truncated {truncated_count} documents to fit context limit ({MAX_CONTEXT_CHARS} chars)")
+
+        contexts_str = "\n\n".join(context_parts)
         
         if mode == "tutor":
             subject = kwargs.get("subject")
@@ -853,21 +816,7 @@ CONCISENESS RULE:
 - Keep the total length around 3-4 screens of text maximum.
 
 Generate the complete notes now:"""
-        elif mode == "flow":
-            user_expertise = kwargs.get("user_expertise", "beginner")
-            subject = kwargs.get("subject", "Unknown Subject")
-            
-            user_prompt = f"""Student Request: {query}
 
-Subject Context: {subject}
-Student Expertise Level: {user_expertise.upper()}
-
-Retrieved Knowledge:
-======================================
-{contexts_str}
-======================================
-
-Generate the Flow State response following your cognitive rules:"""
         else:
             user_prompt = f"Query: {query}\n\nContext:\n{contexts_str}"
 
