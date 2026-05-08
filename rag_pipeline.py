@@ -28,16 +28,32 @@ graph TD
 - Keep labels short and descriptive.
 - For any complex logic, use a numbered list instead of a diagram.
 
-## ADAPTIVE RESPONSE FORMAT
-Based on your analysis of the question, choose the best format:
+## QUESTION ANALYSIS PROTOCOL
+Before answering ANY question, first identify:
 
-- **Definition/Concept questions**: Start with clear definition, then examples, then edge cases
-- **Algorithm/Procedure questions**: Use step-by-step numbered list, include flowchart, complexity analysis
-- **Comparison questions**: Use a comparison table or bullet points with key differences
-- **Numerical/Formula questions**: Show step-by-step solution, highlight key formulas, common mistakes
-- **Code questions**: Provide clean code with comments, input/output examples, time/space complexity
-- **Application/Real-world questions**: Start with real-world analogy, then theory, then practical use cases
-- **Proof/Derivation questions**: Show logical step-by-step reasoning with clear assumptions
+1. **Question Type**: What category does this fall into?
+   - DEFINITION/CONCEPT: "What is X?" "Define..."
+   - ALGORITHM/PROCEDURE: "How does X work?" "Explain the process of..."
+   - COMPARISON: "Difference between X and Y?" "Compare X and Y"
+   - NUMERICAL/FORMULA: "Calculate..." "Derive formula for..."
+   - CODE/IMPLEMENTATION: "Write code for..." "Implement..."
+   - PROOF/DERIVATION: "Prove that..." "Show why..."
+   - APPLICATION/USE: "Where is X used?" "Why is it important?"
+
+2. **Student Need**: What does the student really want?
+   - Quick understanding (1-2 sentences)
+   - Exam-ready answer (marks-based format)
+   - Deep conceptual understanding
+   - Practical implementation
+
+3. **Optimal Answer Format**:
+   - DEFINITION → Clear definition + examples + edge cases
+   - ALGORITHM → Step-by-step + flowchart + complexity
+   - COMPARISON → Table with key differences
+   - NUMERICAL → Formula + step-by-step solution + common mistakes
+   - CODE → Working code + comments + complexity + test cases
+   - PROOF → Logical step-by-step with assumptions stated
+   - APPLICATION → Real-world analogy first, then theory
 
 ## GENERAL BEHAVIOR
 You are an expert AI tutor for university and competitive exam students
@@ -695,34 +711,23 @@ class GTURAGPipeline:
             elif detail_level == "advanced":
                 detail_instruction = "Explanation Level: Advanced (Full technical depth with formulas)\n"
             
-            user_prompt = f"""Student Question: {query}
+            user_prompt = f"""{subject_filter}{marks_format}{detail_instruction}
+Student Question: {query}
 
-{subject_filter}{marks_format}{detail_instruction}
-Retrieved Context from Notes:
-=============================
+<context>
 {contexts_str}
-=============================
+</context>
 
-{web_search}Instructions:
-1. First, analyze the question to determine:
-   - What type of question is this? (definition, explanation, comparison, step-by-step procedure, algorithm, formula derivation, practical application, numerical problem, etc.)
-   - What is the best way to explain this? (use analogies, diagrams, code examples, formulas, real-world examples, etc.)
-   - What are the key concepts the student must understand?
+{web_search}
 
-2. Based on your analysis, craft your answer:
-   - For conceptual questions: Focus on clear definitions with examples
-   - For procedural questions: Give step-by-step instructions
-   - For comparison questions: Use tables or clear contrast points
-   - For algorithm questions: Include flowchart/diagram and complexity analysis
-   - For numerical problems: Show step-by-step solution with formulas
-   - For code questions: Provide working code with comments
-   - For application questions: Give real-world examples
+Before answering, explicitly identify:
+1. QUESTION TYPE: [Definition/Concept | Algorithm/Procedure | Comparison | Numerical/Formula | Code/Implementation | Proof/Derivation | Application/Real-world]
+2. KEY CONCEPTS: [2-3 main concepts the answer must cover]
+3. BEST FORMAT: [One-liner summary | Step-by-step | Table/comparison | Code block | Formula + derivation | Flowchart]
 
-3. If a marks format was specified, strictly follow that word limit and structure
+ANSWER:
 
-Dynamic Output (adapt based on question type):
-
-Provide your answer now:"""
+<answer>"""
 
         elif mode == "coach":
             subject = kwargs.get("subject", "Unknown Subject")
